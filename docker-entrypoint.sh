@@ -36,14 +36,21 @@ POSTGRES_DB=${POSTGRES_DB:-`read_secret "${POSTGRES_DB_SECRET}" "${POSTGRES_USER
 
 # Set up psql command
 export PGPASSWORD="${POSTGRES_PASSWORD}"
+postgres_common=(--host="${POSTGRES_HOST}" \
+  --port="${POSTGRES_PORT}" \
+  --username="${POSTGRES_USER}" \
+  -w )
 psql=( psql \
   -v ON_ERROR_STOP=1 \
-  --host="${POSTGRES_HOST}" \
-  --port="${POSTGRES_PORT}" \
-  --username="$POSTGRES_USER" \
-  --dbname="$POSTGRES_DB" )
+  ${postgres_common[@]}
+  --dbname="${POSTGRES_DB}" )
+
+# Create the database if neccessary
+echo -n "Attempting to create database \"${POSTGRES_DB}\"... "
+createdb ${postgres_common[@]} "${POSTGRES_DB}" && echo "Done." || echo
 
 # Execute all the things
+echo "Running SQL scripts against database..."
 for f in /docker-entrypoint-initdb.d/*; do
 	case "$f" in
 		*.sh)     echo "$0: running $f"; . "$f" ;;
