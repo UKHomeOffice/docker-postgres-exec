@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/postgres:v0.0.2
+FROM quay.io/ukhomeofficedigital/postgres:v0.0.3
 
 ENV TERM dumb
 
